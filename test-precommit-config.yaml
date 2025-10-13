@@ -1,0 +1,19 @@
+repos:
+  - repo: https://github.com/gitleaks/gitleaks
+    rev: v8.24.2
+    hooks:
+      - id: gitleaks
+  - repo: local
+    hooks:
+      - id: nhsd-git-secrets-standalone
+        name: NHSD Git Secrets (Standalone)
+        description: Standalone NHSD git-secrets scanner
+        entry: /home/jowi60/direct_commissioning/nhsd-git-secrets-precommit/scripts/git-secrets-wrapper.sh
+        language: script
+        pass_filenames: false
+  - repo: https://github.com/astral-sh/ruff-pre-commit
+    rev: v0.13.2
+    hooks:
+      - id: ruff
+        args: [--fix]
+      - id: ruff-format
