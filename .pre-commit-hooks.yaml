@@ -4,6 +4,6 @@
   entry: scripts/git-secrets-wrapper.sh
   language: script
   files: .*
-  stages: [commit, merge-commit]
+  stages: [pre-commit, pre-merge-commit]
   pass_filenames: false
   require_serial: true
