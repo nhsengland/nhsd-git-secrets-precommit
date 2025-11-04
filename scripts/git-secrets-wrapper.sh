@@ -1,5 +1,6 @@
 #!/usr/bin/env bash
-set -e
+# Don't use set -e because we need to handle git-secrets exit codes properly
+# and ensure output is displayed to the user
 
 # Cross-platform wrapper script for NHSD Git Secrets
 # This script detects the operating system and runs the appropriate git-secrets command
@@ -38,17 +39,26 @@ case "${OS}" in
         GIT_SECRETS_EXEC="${SCRIPT_DIR}/git-secrets"
         RULES_FILE="${SCRIPT_DIR}/../rules/nhsd-rules-deny.txt"
         CUSTOM_RULES_FILE="${SCRIPT_DIR}/../rules/custom-rules.txt"
+        GITALLOWED_BASE="${SCRIPT_DIR}/../.gitallowed-base"
+        GITALLOWED_USER="${REPO_ROOT}/.gitallowed"
         
         # Make sure git-secrets is executable
         chmod +x "${GIT_SECRETS_EXEC}" 2>/dev/null || true
         
+        # Initialize .gitallowed in user's repo if it doesn't exist
+        if [ ! -f "${GITALLOWED_USER}" ] && [ -f "${GITALLOWED_BASE}" ]; then
+            echo "Initializing .gitallowed file in repository..." >&2
+            cp "${GITALLOWED_BASE}" "${GITALLOWED_USER}"
+            echo "Created .gitallowed - you can add your own patterns to this file" >&2
+        fi
+        
         # Add the NHSD rules provider
-        "${GIT_SECRETS_EXEC}" --add-provider -- cat "${RULES_FILE}"
+        "${GIT_SECRETS_EXEC}" --add-provider -- cat "${RULES_FILE}" >/dev/null 2>&1
         
         # Add custom rules from hook's directory if it exists
         if [ -f "${CUSTOM_RULES_FILE}" ]; then
             echo "Loading custom rules from hook directory: ${CUSTOM_RULES_FILE}" >&2
-            "${GIT_SECRETS_EXEC}" --add-provider -- cat "${CUSTOM_RULES_FILE}"
+            "${GIT_SECRETS_EXEC}" --add-provider -- cat "${CUSTOM_RULES_FILE}" >/dev/null 2>&1
         fi
         
         # Add custom rules from user's repository if specified
@@ -62,14 +72,15 @@ case "${OS}" in
             
             if [ -f "${USER_RULES_FILE}" ]; then
                 echo "Loading custom rules from repository: ${USER_RULES_FILE}" >&2
-                "${GIT_SECRETS_EXEC}" --add-provider -- cat "${USER_RULES_FILE}"
+                "${GIT_SECRETS_EXEC}" --add-provider -- cat "${USER_RULES_FILE}" >/dev/null 2>&1
             else
                 echo "Warning: Custom rules file not found: ${USER_RULES_FILE}" >&2
             fi
         fi
         
-        # Run the pre-commit hook
+        # Run the pre-commit hook - output goes directly to terminal
         "${GIT_SECRETS_EXEC}" --pre_commit_hook
+        exit $?
         ;;
     MINGW*|CYGWIN*|MSYS*|Windows*)
         # Windows systems (including Git Bash, MINGW, CYGWIN)
@@ -83,14 +94,23 @@ case "${OS}" in
             GIT_SECRETS_EXEC="${SCRIPT_DIR}/git-secrets"
             RULES_FILE="${SCRIPT_DIR}/../rules/nhsd-rules-deny.txt"
             CUSTOM_RULES_FILE="${SCRIPT_DIR}/../rules/custom-rules.txt"
+            GITALLOWED_BASE="${SCRIPT_DIR}/../.gitallowed-base"
+            GITALLOWED_USER="${REPO_ROOT}/.gitallowed"
+            
+            # Initialize .gitallowed in user's repo if it doesn't exist
+            if [ ! -f "${GITALLOWED_USER}" ] && [ -f "${GITALLOWED_BASE}" ]; then
+                echo "Initializing .gitallowed file in repository..." >&2
+                cp "${GITALLOWED_BASE}" "${GITALLOWED_USER}"
+                echo "Created .gitallowed - you can add your own patterns to this file" >&2
+            fi
             
             # Add the NHSD rules provider
-            "${GIT_SECRETS_EXEC}" --add-provider -- cat "${RULES_FILE}"
+            "${GIT_SECRETS_EXEC}" --add-provider -- cat "${RULES_FILE}" >/dev/null 2>&1
             
             # Add custom rules from hook's directory if it exists
             if [ -f "${CUSTOM_RULES_FILE}" ]; then
                 echo "Loading custom rules from hook directory: ${CUSTOM_RULES_FILE}" >&2
-                "${GIT_SECRETS_EXEC}" --add-provider -- cat "${CUSTOM_RULES_FILE}"
+                "${GIT_SECRETS_EXEC}" --add-provider -- cat "${CUSTOM_RULES_FILE}" >/dev/null 2>&1
             fi
             
             # Add custom rules from user's repository if specified
@@ -104,14 +124,15 @@ case "${OS}" in
                 
                 if [ -f "${USER_RULES_FILE}" ]; then
                     echo "Loading custom rules from repository: ${USER_RULES_FILE}" >&2
-                    "${GIT_SECRETS_EXEC}" --add-provider -- cat "${USER_RULES_FILE}"
+                    "${GIT_SECRETS_EXEC}" --add-provider -- cat "${USER_RULES_FILE}" >/dev/null 2>&1
                 else
                     echo "Warning: Custom rules file not found: ${USER_RULES_FILE}" >&2
                 fi
             fi
             
-            # Run the pre-commit hook
+            # Run the pre-commit hook - output goes directly to terminal
             "${GIT_SECRETS_EXEC}" --pre_commit_hook
+            exit $?
         fi
         ;;
     *)

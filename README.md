@@ -110,18 +110,25 @@ To add custom rules that apply to all repositories using this hook:
 
 ### 4. Use .gitallowed for Exceptions
 
-Create a `.gitallowed` file in your repository root to exclude specific files or patterns from scanning:
+**The hook automatically creates a `.gitallowed` file in your repository on first run.** This file contains common false-positive patterns (like `127.0.0.1`, SVG files, terraform state, etc.) that are automatically excluded from scanning.
+
+You can add your own patterns to `.gitallowed` to exclude specific files or patterns:
 
 ```text
 # Exclude terraform state files
 .*terraform.tfstate.*:*
 
-# Exclude specific test files
+# Exclude specific test files  
 tests/fixtures/sample-data.json:*
 
 # Exclude a specific line in a file
 config/example.yaml:12
+
+# Exclude files with test credentials
+.*test.*password.*:*
 ```
+
+**Important:** The `.gitallowed` file will be automatically created on the first pre-commit run. You should commit this file to your repository so all team members use the same exceptions.
 
 ### 5. Combine Pre-commit Config Options
 
