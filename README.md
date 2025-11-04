@@ -32,10 +32,6 @@ pre-commit run --all-files
 
 You can customize the git-secrets scanning in several ways:
 
-## Custom Configuration
-
-You can customize the git-secrets scanning in several ways:
-
 ### 1. Add Custom Rules from Your Repository (Recommended)
 
 The most flexible approach - add a custom rules file to **your own repository** and reference it in your `.pre-commit-config.yaml`:
