@@ -6,3 +6,4 @@
   files: .*
   stages: [commit, merge-commit]
   pass_filenames: false
+  require_serial: true

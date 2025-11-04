@@ -1,0 +1,25 @@
+# Custom Git Secrets Rules
+# 
+# Add your own regex patterns here to detect additional secrets
+# Each line should be a valid regex pattern
+# 
+# Example patterns:
+# my-company-api-key-[0-9a-zA-Z]{32}
+# internal-token:\s*.+
+# project-specific-secret=.+
+#
+# To activate these rules:
+# 1. Copy this file to custom-rules.txt (remove .example)
+# 2. Add your patterns (one per line)
+# 3. The wrapper script will automatically load them
+#
+# Uncomment and modify the examples below, or add your own:
+
+# Example: Detect specific API key format
+# mycompany_[0-9a-zA-Z]{40}
+
+# Example: Detect database connection strings with passwords
+# mysql://.*:.*@.*
+
+# Example: Detect internal secret environment variables
+# INTERNAL_SECRET_KEY\s*=\s*.+

@@ -12,6 +12,12 @@ repos:
     rev: v1.0.0  # Use the latest version
     hooks:
       - id: nhsd-git-secrets
+        # Optional: specify a custom rules file in your repository
+        # args: ['--custom-rules-file', '.git-secrets-custom-rules.txt']
+        # Optional: only scan specific file types
+        # files: \.(py|js|yaml|json|sh)$
+        # Optional: exclude certain directories
+        # exclude: ^(docs|tests/fixtures|vendor)/
 
   - repo: https://github.com/astral-sh/ruff-pre-commit
     rev: v0.13.2
