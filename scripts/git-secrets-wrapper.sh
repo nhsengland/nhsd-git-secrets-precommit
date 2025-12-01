@@ -5,24 +5,37 @@
 # Cross-platform wrapper script for NHSD Git Secrets
 # This script detects the operating system and runs the appropriate git-secrets command
 #
-# Usage: git-secrets-wrapper.sh [--custom-rules-file <path>]
+# Usage: git-secrets-wrapper.sh [--custom-rules-file <path>] [--debug]
 #
 # Arguments:
 #   --custom-rules-file: Path to additional rules file (relative to repo root or absolute)
+#   --debug: Enable debug output
 
 # Parse command line arguments
 CUSTOM_RULES_ARG=""
+DEBUG_MODE=0
 while [[ $# -gt 0 ]]; do
     case $1 in
         --custom-rules-file)
             CUSTOM_RULES_ARG="$2"
             shift 2
             ;;
+        --debug)
+            DEBUG_MODE=1
+            shift
+            ;;
         *)
             shift
             ;;
     esac
 done
+
+# Debug function
+debug_log() {
+    if [ "$DEBUG_MODE" -eq 1 ]; then
+        echo "[DEBUG] $1" >&2
+    fi
+}
 
 # Get the directory where this script is located (resolve symlinks for robustness)
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd -P)"
@@ -33,12 +46,25 @@ REPO_ROOT="$(git rev-parse --show-toplevel 2>/dev/null || echo ".")"
 # Detect the operating system
 OS="$(uname -s 2>/dev/null || echo "Windows")"
 
+debug_log "OS detected: $OS"
+debug_log "SCRIPT_DIR: $SCRIPT_DIR"
+debug_log "REPO_ROOT: $REPO_ROOT"
+debug_log "Bash version: $BASH_VERSION"
+debug_log "Grep version: $(grep --version 2>&1 | head -1)"
+
 # Function to load patterns directly (avoiding provider path issues)
 load_patterns_from_file() {
     local file="$1"
     if [ -f "$file" ]; then
         # Read patterns, skip comments and empty lines
-        grep -v '^#' "$file" | grep -v '^[[:space:]]*$' || true
+        debug_log "Loading patterns from: $file"
+        local patterns
+        patterns=$(grep -v '^#' "$file" | grep -v '^[[:space:]]*$' || true)
+        local count=$(echo "$patterns" | grep -c . || echo "0")
+        debug_log "Loaded $count patterns from $file"
+        echo "$patterns"
+    else
+        debug_log "File not found: $file"
     fi
 }
 
@@ -58,8 +84,11 @@ scan_staged_files() {
     
     if [ -z "$staged_files" ]; then
         # No staged files, nothing to scan
+        debug_log "No staged files to scan"
         return 0
     fi
+    
+    debug_log "Staged files to scan: $(echo "$staged_files" | wc -l | tr -d ' ')"
     
     # Build combined patterns
     local all_patterns=""
@@ -97,8 +126,11 @@ scan_staged_files() {
     
     if [ -z "$all_patterns" ]; then
         echo "Warning: No patterns loaded" >&2
+        debug_log "No patterns were loaded from any source"
         return 0
     fi
+    
+    debug_log "Total patterns loaded: $(echo "$all_patterns" | grep -c . || echo "0")"
     
     # Load allowed patterns
     local allowed_patterns=""
@@ -174,16 +206,24 @@ case "${OS}" in
         
         # Clean up any old git-secrets config that might interfere
         # This prevents old cached providers from causing errors
+        debug_log "Cleaning up old git-secrets config..."
         git config --local --unset-all secrets.providers 2>/dev/null || true
         git config --local --unset-all secrets.patterns 2>/dev/null || true
         
         # Debug: show which rules file we're using
+        debug_log "Looking for rules at: ${RULES_FILE}"
         if [ ! -f "${RULES_FILE}" ]; then
             echo "ERROR: Rules file not found at: ${RULES_FILE}" >&2
             echo "SCRIPT_DIR is: ${SCRIPT_DIR}" >&2
-            ls -la "${SCRIPT_DIR}/../rules/" >&2 2>/dev/null || echo "Rules directory not found" >&2
+            echo "Contents of scripts dir:" >&2
+            ls -la "${SCRIPT_DIR}/" >&2 2>/dev/null || echo "  Cannot list scripts dir" >&2
+            echo "Contents of parent dir:" >&2
+            ls -la "${SCRIPT_DIR}/../" >&2 2>/dev/null || echo "  Cannot list parent dir" >&2
+            echo "Contents of rules dir:" >&2
+            ls -la "${SCRIPT_DIR}/../rules/" >&2 2>/dev/null || echo "  Rules directory not found" >&2
             exit 1
         fi
+        debug_log "Rules file found: ${RULES_FILE}"
         
         # Initialize .gitallowed in user's repo if it doesn't exist
         if [ ! -f "${GITALLOWED_USER}" ] && [ -f "${GITALLOWED_BASE}" ]; then
@@ -210,8 +250,11 @@ case "${OS}" in
         fi
         
         # Run the scan directly (avoids git-secrets provider path issues)
+        debug_log "Starting scan..."
         scan_staged_files "${RULES_FILE}" "${CUSTOM_RULES_FILE}" "${USER_RULES_FILE}" "${GITALLOWED_USER}"
-        exit $?
+        SCAN_RESULT=$?
+        debug_log "Scan complete with exit code: $SCAN_RESULT"
+        exit $SCAN_RESULT
         ;;
     MINGW*|CYGWIN*|MSYS*|Windows*)
         # Windows systems (including Git Bash, MINGW, CYGWIN)
