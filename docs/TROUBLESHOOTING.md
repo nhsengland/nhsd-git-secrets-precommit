@@ -18,7 +18,7 @@ pre-commit clean
 
 # 3. Reinstall and run
 pre-commit install
-pre-commit run --all-files
+pre-commit run --all-files --verbose
 ```
 
 ---
@@ -59,7 +59,7 @@ git config --local --unset-all secrets.patterns
 git config --global --unset-all secrets.providers
 git config --global --unset-all secrets.patterns
 pre-commit clean
-pre-commit run --all-files
+pre-commit run --all-files --verbose
 ```
 
 ---
@@ -77,7 +77,7 @@ cat: nhsd-git-secrets/nhsd-rules-deny.txt: No such file or directory
 # Nuclear option - clear entire cache
 rm -rf ~/.cache/pre-commit
 pre-commit install
-pre-commit run --all-files
+pre-commit run --all-files --verbose
 ```
 
 ---
