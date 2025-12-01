@@ -53,6 +53,7 @@ fatal: command line, '...patterns...': empty (sub)expression
 **Cause:** Old git-secrets patterns are stored in your git config and contain regex syntax that doesn't work on your system.
 
 **Solution:**
+
 ```bash
 git config --local --unset-all secrets.providers
 git config --local --unset-all secrets.patterns
@@ -73,6 +74,7 @@ cat: nhsd-git-secrets/nhsd-rules-deny.txt: No such file or directory
 **Cause:** Old cached version of the hook is being used, or the cache is corrupted.
 
 **Solution:**
+
 ```bash
 # Nuclear option - clear entire cache
 rm -rf ~/.cache/pre-commit
@@ -87,6 +89,7 @@ pre-commit run --all-files --verbose
 **Cause:** The hook is trying to call a globally installed git-secrets that doesn't exist.
 
 **Solution:** This is usually caused by old git config. Run:
+
 ```bash
 git config --local --unset-all secrets.providers
 git config --global --unset-all secrets.providers
@@ -97,6 +100,7 @@ git config --global --unset-all secrets.providers
 ### Hook Not Running at All
 
 **Check if pre-commit is installed correctly:**
+
 ```bash
 # Check pre-commit is installed
 pre-commit --version
@@ -164,11 +168,13 @@ echo 'https://hooks.slack.com/services/T12345678/B12345678/XXXXXXXXXXXXXXXXXXXXX
 Mac uses BSD grep by default, which has some differences from GNU grep.
 
 **Check your grep version:**
+
 ```bash
 grep --version
 ```
 
 If patterns aren't matching, try installing GNU grep:
+
 ```bash
 brew install grep
 # Then use ggrep instead of grep, or add to PATH
@@ -177,6 +183,7 @@ brew install grep
 ### Old Bash Version
 
 Mac ships with an old version of Bash (3.x). The hook should work, but check:
+
 ```bash
 bash --version
 ```
@@ -198,6 +205,7 @@ ls -la .git/hooks/ | grep -E "pre-commit|commit-msg"
 ```
 
 If you see git-secrets hooks in `.git/hooks/`, remove them:
+
 ```bash
 rm .git/hooks/pre-commit
 rm .git/hooks/commit-msg
@@ -252,6 +260,7 @@ rm -rf "$TEMP_DIR"
 4. Share this information with the team
 
 **Debug script:**
+
 ```bash
 curl -sSL https://raw.githubusercontent.com/nhsengland/nhsd-git-secrets-precommit/main/scripts/debug-git-secrets.sh | bash > debug-output.txt 2>&1
 ```
