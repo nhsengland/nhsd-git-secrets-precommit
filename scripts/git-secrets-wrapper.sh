@@ -172,6 +172,19 @@ case "${OS}" in
         GITALLOWED_BASE="${SCRIPT_DIR}/../.gitallowed-base"
         GITALLOWED_USER="${REPO_ROOT}/.gitallowed"
         
+        # Clean up any old git-secrets config that might interfere
+        # This prevents old cached providers from causing errors
+        git config --local --unset-all secrets.providers 2>/dev/null || true
+        git config --local --unset-all secrets.patterns 2>/dev/null || true
+        
+        # Debug: show which rules file we're using
+        if [ ! -f "${RULES_FILE}" ]; then
+            echo "ERROR: Rules file not found at: ${RULES_FILE}" >&2
+            echo "SCRIPT_DIR is: ${SCRIPT_DIR}" >&2
+            ls -la "${SCRIPT_DIR}/../rules/" >&2 2>/dev/null || echo "Rules directory not found" >&2
+            exit 1
+        fi
+        
         # Initialize .gitallowed in user's repo if it doesn't exist
         if [ ! -f "${GITALLOWED_USER}" ] && [ -f "${GITALLOWED_BASE}" ]; then
             echo "Initializing .gitallowed file in repository..." >&2
@@ -207,6 +220,17 @@ case "${OS}" in
         CUSTOM_RULES_FILE="${SCRIPT_DIR}/../rules/custom-rules.txt"
         GITALLOWED_BASE="${SCRIPT_DIR}/../.gitallowed-base"
         GITALLOWED_USER="${REPO_ROOT}/.gitallowed"
+        
+        # Clean up any old git-secrets config that might interfere
+        git config --local --unset-all secrets.providers 2>/dev/null || true
+        git config --local --unset-all secrets.patterns 2>/dev/null || true
+        
+        # Debug: show which rules file we're using
+        if [ ! -f "${RULES_FILE}" ]; then
+            echo "ERROR: Rules file not found at: ${RULES_FILE}" >&2
+            echo "SCRIPT_DIR is: ${SCRIPT_DIR}" >&2
+            exit 1
+        fi
         
         # Initialize .gitallowed in user's repo if it doesn't exist
         if [ ! -f "${GITALLOWED_USER}" ] && [ -f "${GITALLOWED_BASE}" ]; then
