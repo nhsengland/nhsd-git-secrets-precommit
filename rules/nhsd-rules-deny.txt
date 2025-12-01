@@ -1,21 +1,52 @@
+# Slack webhooks
 https://hooks.slack.com/services/T[a-zA-Z0-9_]{8}/B[a-zA-Z0-9_]{8,12}/[a-zA-Z0-9_]{24}
+
+# Amazon MWS tokens
 amzn\.mws\.[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}
+
+# GitHub tokens
 ghp_[0-9a-zA-Z]{36}
 gho_[0-9a-zA-Z]{36}
 (ghu|ghs)_[0-9a-zA-Z]{36}
 ghr_[0-9a-zA-Z]{76}
-xox[baprs]-([0-9a-zA-Z]{10,48})?
------BEGIN\ ((EC|PGP|DSA|RSA|OPENSSH)\ )?PRIVATE KEY( BLOCK)?-----
-AIza[0-9A-Za-z\\-_]{35}
-'"type": "service_account"'
-[a-z]{2}-[a-z-]*-[1,2,3]\.rds\.amazonaws\.com
-rds\.[a-z]{2}-[a-z-]*-[1,2,3]\.amazonaws\.com
-dynamodb\.[a-z]{2}-[a-z-]*-[1,2,3]\.amazonaws\.com
-[a-z]{2}-[a-z-]*-[1,2,3]\.es\.amazonaws\.com
-[a-z]*[1-3]\.cache\.amazonaws\.com
------BEGIN[[:blank:]]CERTIFICATE-----
-[0-9a-fA-F]{1,4}:[0-9a-fA-F]{1,4}:[0-9a-fA-F]{1,4}:[0-9a-fA-F]{1,4}:[0-9a-fA-F]{1,4}:[0-9a-fA-F]{1,4}:[0-9a-fA-F]{1,4}:[0-9a-fA-F]{1,4}
+
+# Slack tokens
+xox[baprs]-[0-9a-zA-Z]{10,48}
+
+# Private keys (simplified patterns for cross-platform compatibility)
+-----BEGIN.*(PRIVATE|RSA|EC|DSA|OPENSSH).*-----
+-----BEGIN.*CERTIFICATE-----
+
+# Google API keys
+AIza[0-9A-Za-z_-]{35}
+
+# GCP service account
+"type":\s*"service_account"
+
+# AWS RDS endpoints
+[a-z]{2}-[a-z-]+-[1-3]\.rds\.amazonaws\.com
+rds\.[a-z]{2}-[a-z-]+-[1-3]\.amazonaws\.com
+
+# AWS DynamoDB endpoints
+dynamodb\.[a-z]{2}-[a-z-]+-[1-3]\.amazonaws\.com
+
+# AWS Elasticsearch endpoints
+[a-z]{2}-[a-z-]+-[1-3]\.es\.amazonaws\.com
+
+# AWS ElastiCache endpoints
+[a-z]+[1-3]\.cache\.amazonaws\.com
+
+# IPv6 addresses
+[0-9a-fA-F]{1,4}(:[0-9a-fA-F]{1,4}){7}
+
+# IPv4 addresses
 [0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}
-(CLIENT|client|Client)(_|\s)(SECRET|secret|Secret)\s*(:|=>|=)\s*("|')?(\{)?[0-9a-fA-F]{8}\-[0-9a-fA-F]{4}\-[0-9a-fA-F]{4}\-[0-9a-fA-F]{4}\-[0-9a-fA-F]{12}(\})?("|')?
-password\s*(=|:)\s*.+
-token\s*(=|:)\s*.+
+
+# Client secrets (UUID format)
+[Cc][Ll][Ii][Ee][Nn][Tt][_\s][Ss][Ee][Cc][Rr][Ee][Tt]\s*[=:]\s*[0-9a-fA-F-]{36}
+
+# Password assignments
+password\s*[=:]\s*.+
+
+# Token assignments
+token\s*[=:]\s*.+
